@@ -1,0 +1,18 @@
+:root { font-family: system-ui, sans-serif; color: #1b302b; background: #f2f7f3; }
+body { margin: 0; }
+main { max-width: 54rem; margin: auto; padding: 2.5rem 1rem; }
+header { margin-bottom: 2rem; }
+h1 { font-size: clamp(2.5rem, 8vw, 4.5rem); letter-spacing: -.05em; margin: .25rem 0; line-height: 1; }
+h2 { margin: 0 0 1rem; }
+.venue { color: #376256; font-weight: 650; }
+.card { background: white; border: 1px solid #c7dbd3; border-radius: 1rem; padding: clamp(1rem, 4vw, 2rem); margin-bottom: 1rem; }
+#planner fieldset { border: 0; padding: 0; margin: 1rem 0; }
+#planner legend { font-weight: 650; margin-bottom: .4rem; }
+#planner label { display: inline-block; margin: .2rem 1rem .2rem 0; }
+#planner input[type=number] { font: inherit; width: 5rem; padding: .4rem; }
+.plan { color: white; background: #1d5a49; border: 0; border-radius: .4rem; font: inherit; padding: .65rem 1rem; cursor: pointer; }
+:focus-visible { outline: 3px solid #bb631a; outline-offset: 3px; }
+a { color: #155544; }
+#result:not(:empty) { margin-top: 1rem; background: #e7f2eb; padding: 1rem; border-radius: .5rem; }
+#result h3, #result p { margin: .35rem 0; }
+#agent-app { min-height: 8rem; margin-bottom: 1rem; }

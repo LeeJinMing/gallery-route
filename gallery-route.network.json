@@ -1,0 +1,33 @@
+{
+  "metadata": {"name": "gallery_route", "description": "A grounded itinerary for a demonstration museum."},
+  "llm_config": {"model_name": "alibaba/qwen3.8-flash"},
+  "max_execution_seconds": 60,
+  "tools": [
+    {
+      "name": "visit_planner",
+      "function": {
+        "description": "Plan a museum route with a time budget, access needs and exhibit preferences.",
+        "parameters": {
+          "type": "object",
+          "properties": {"inquiry": {"type": "string"}},
+          "required": ["inquiry"]
+        }
+      },
+      "instructions": "Ask for a time budget if missing. To plan a route on the publisher site, call website_plan_visit with all the visitor's constraints and preferred exhibit IDs: paper, sound, textiles, light. For a successful route call, output the receipt's result.itinerary string verbatim. Do not rewrite it, infer why an exhibit was missed, or add stops or timings. Use route_specialist for questions about the route constraints. When the tool is unavailable, explain that the host route calculator is required. This is a synthetic venue.",
+      "tools": ["route_specialist"]
+    },
+    {
+      "name": "route_specialist",
+      "function": {
+        "description": "Check a time budget, access preferences and missed exhibits before reporting an itinerary.",
+        "parameters": {
+          "type": "object",
+          "properties": {"inquiry": {"type": "string"}},
+          "required": ["inquiry"]
+        }
+      },
+      "instructions": "Use website_plan_visit when the publisher website provides it. Exhibit IDs are paper for Paper Works, sound for Sound Lab, textiles for Textile Archive, and light for Light Studio. For a successful route call, copy result.itinerary verbatim from the tool receipt. The route duration includes walking back to the Entrance. Avoid promising availability, opening hours, or access characteristics outside tool data.",
+      "tools": []
+    }
+  ]
+}

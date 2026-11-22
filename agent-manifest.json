@@ -1,0 +1,21 @@
+{
+  "brand": "Gallery Route",
+  "networks": [{
+    "name": "gallery_route",
+    "front_man": "visit_planner",
+    "hocon": "./gallery-route.network.json",
+    "description": "Build a timed, step-free or quiet visit in a demonstration museum.",
+    "sample_queries": ["I have 45 minutes and need a quiet, step-free route. Can I see the Textile Archive?"]
+  }],
+  "llm_router": {"base_url": "https://api.otari.ai/api/v1", "mock": false},
+  "allowed_peers": [],
+  "peer_policy": {"mode": "closed", "deny_origins": []},
+  "linking": {
+    "protocol": "nsdeploy-link/v1",
+    "exports": [{"network": "gallery_route", "front_man": "visit_planner", "aliases": ["gallery_route"], "url": "gallery_route"}],
+    "imports": [],
+    "link_updates": {"mode": "browser-local"}
+  },
+  "deployment": {"mode": "static", "self_contained_runtime": true, "direct_byok": true},
+  "actions": {"version": 1, "module": "./gallery-actions.js", "agentTools": ["plan_visit"]}
+}
