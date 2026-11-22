@@ -1129,7 +1129,8 @@ export function mountApp(root, { engine, trace, manifest, connect = null }) {
   modelEl.value = engine.modelOverride || "";
   // The key shown comes from the same source as the router and model the engine
   // uses, so it never shows another setup's key next to this tab's router.
-  keyEl.value = loadTabByokSetup(selectedProfile).key;
+  const appliedSetup = loadTabByokSetup(selectedProfile);
+  keyEl.value = appliedSetup.key;
   // The provider whose settings the form holds. Another key from the same provider
   // does not fill in that provider's defaults again.
   let formProvider = providerForApiKey(keyEl.value);
@@ -1421,10 +1422,17 @@ export function mountApp(root, { engine, trace, manifest, connect = null }) {
   deleteProfileBtn.addEventListener("click", () => {
     const id = profileEl.value;
     if (!id) return;
+    const isActive = appliedSetup.id === id;
     const oldName = profileStore.profiles.find((p) => p.id === id)?.name || "setup";
     profileStore = deleteByokProfile(id);
+    if (isActive) {
+      saveTabByokSetup({});
+      location.reload();
+      return;
+    }
     selectedProfile = getSelectedByokProfile(profileStore);
     refreshProfileOptions(profileStore.selectedId);
+    applyProfileToForm(selectedProfile ?? {});
     setProfileHint(`Deleted setup "${oldName}".`);
   });
   refreshHint();

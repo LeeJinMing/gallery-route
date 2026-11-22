@@ -6,6 +6,7 @@ import { Engine } from "./runtime/engine.js";
 import { finalizeItinerary, registerActions } from "./gallery-actions.js";
 import { createBrowserModel, loadBrowserModel } from "./browser-model.js";
 import { planRoute, venue } from "./route.mjs";
+import { deleteByokProfile, loadTabByokSetup, saveTabByokSetup, upsertByokProfile } from "./runtime/byok.js";
 
 test("quiet and step-free itinerary includes dwell time and return walk", () => {
   const route = planRoute({ minutes: 45, stepFree: true, quiet: true, preferred: ["textiles", "sound"] });
@@ -100,4 +101,33 @@ test("the browser model asks for a missing budget and dispatches a tool after cl
 
 test("on-device inference reports when the browser has no WebGPU", async () => {
   await assert.rejects(loadBrowserModel(), /WebGPU-compatible browser/);
+});
+
+test("a deleted provider cannot be restored by another tab's saved session", () => {
+  const names = ["localStorage", "sessionStorage"];
+  const originals = names.map(name => Object.getOwnPropertyDescriptor(globalThis, name));
+  try {
+    for (const name of names) {
+      const data = new Map();
+      Object.defineProperty(globalThis, name, { configurable: true, value: {
+        getItem: key => data.get(key) ?? null,
+        setItem: (key, value) => data.set(key, String(value)),
+        removeItem: key => data.delete(key),
+      } });
+    }
+    const { profile: first } = upsertByokProfile({
+      key: "fixture-one", router: "https://one.example/v1", model: "first",
+    });
+    saveTabByokSetup(first);
+    upsertByokProfile({ key: "fixture-two", router: "https://two.example/v1", model: "second" });
+    assert.equal(loadTabByokSetup().id, first.id);
+    deleteByokProfile(first.id);
+    assert.equal(loadTabByokSetup().key, "");
+    assert.equal(loadTabByokSetup().key, "");
+  } finally {
+    names.forEach((name, index) => {
+      if (originals[index]) Object.defineProperty(globalThis, name, originals[index]);
+      else delete globalThis[name];
+    });
+  }
 });

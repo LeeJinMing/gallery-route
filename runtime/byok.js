@@ -15,6 +15,7 @@ const TAB_KEY_ITEM = "nsweb-byok-tab-key";
 const LOOSE_KEY_ITEM = "nsweb-byok-key";
 const TAB_ROUTER_ITEM = "nsweb-byok-router";
 const TAB_MODEL_ITEM = "nsweb-byok-model";
+const TAB_PROFILE_ITEM = "nsweb-byok-tab-profile";
 const VERSION = 1;
 const COOKIE_MAX_AGE = 60 * 60 * 24 * 180; // 180 days
 const COOKIE_VALUE_LIMIT = 3800;
@@ -126,6 +127,7 @@ export function saveTabByokSetup(setup) {
       sessionStorage.setItem(LOOSE_KEY_ITEM, setup.key);
     }
     sessionStorage.setItem(TAB_MODEL_ITEM, setup.model || "");
+    if (setup.id) sessionStorage.setItem(TAB_PROFILE_ITEM, setup.id);
     // Written last, because it marks the setup as complete.
     sessionStorage.setItem(TAB_ROUTER_ITEM, setup.router || "");
   } catch {
@@ -137,7 +139,7 @@ export function saveTabByokSetup(setup) {
 // Remove this tab's applied setup and any loose key.
 function clearTabByokSetup() {
   // Each item separately, so one failure does not keep the others.
-  for (const name of [TAB_ROUTER_ITEM, TAB_MODEL_ITEM, TAB_KEY_ITEM, LOOSE_KEY_ITEM]) {
+  for (const name of [TAB_ROUTER_ITEM, TAB_MODEL_ITEM, TAB_KEY_ITEM, TAB_PROFILE_ITEM, LOOSE_KEY_ITEM]) {
     try { sessionStorage.removeItem(name); } catch {}
   }
 }
@@ -150,17 +152,29 @@ export function loadTabByokSetup(savedProfile = getSelectedByokProfile()) {
   let key = "";
   let router = null;
   let model = "";
+  let id = "";
   let looseKey = "";
   try {
     key = sessionStorage.getItem(TAB_KEY_ITEM) || "";
     router = sessionStorage.getItem(TAB_ROUTER_ITEM);
     model = sessionStorage.getItem(TAB_MODEL_ITEM) || "";
+    id = sessionStorage.getItem(TAB_PROFILE_ITEM) || "";
     looseKey = sessionStorage.getItem(LOOSE_KEY_ITEM) || "";
   } catch {}
   // The router item marks a setup applied in this tab, even when it is empty.
-  if (router !== null) return { key, router: resolveByokRouter(router), model };
+  if (router !== null) {
+    const setup = { id, key, router: resolveByokRouter(router), model };
+    if (!key) return setup;
+    const profile = loadByokStore().profiles.find(candidate => id ? candidate.id === id
+      : candidate.key === key && resolveByokRouter(candidate.router) === setup.router && candidate.model === model);
+    if (profile) return { ...setup, id: profile.id };
+    // A deleted profile must not be revived from another tab's stored copy.
+    saveTabByokSetup({});
+    return { id: "", key: "", router: "", model: "" };
+  }
   if (looseKey) return { key: looseKey, router: "", model: "" };
   return {
+    id: savedProfile?.id || "",
     key: savedProfile?.key || "",
     router: resolveByokRouter(savedProfile?.router || ""),
     model: savedProfile?.model || "",

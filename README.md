@@ -15,7 +15,7 @@ Open `http://127.0.0.1:5181/`. Set 45 minutes, choose Quiet and Step-free, and p
 
 **Ask on this device** uses the browser runtime and calls the same route calculator through the read-only `website_plan_visit` tool. On the first request, WebLLM loads a Qwen2.5 1.5B quantization into WebGPU. No API key is required. The model extracts the visitor's constraints into structured fields; the reference runtime validates and dispatches the route tool. The model receives those messages in the browser. Use the itinerary form if WebGPU or the model download is unavailable. The museum and exhibit details are synthetic.
 
-The optional provider interface supports a compatible CORS-enabled external inference endpoint. External requests follow the terms and privacy policies of the selected provider.
+The optional provider interface supports a compatible CORS-enabled external inference endpoint. Select **Use your own AI provider** and configure the key, model, and provider URL in **AI model settings**. Delete the active setup to clear it from the current tab. A tab reopening with a deleted setup returns to the API key prompt. External requests follow the terms and privacy policies of the selected provider.
 
 ## Local model verification
 
@@ -26,7 +26,7 @@ llama-server --model /path/to/Qwen3-4B-Q4_K_M.gguf --alias Qwen3-4B --host 127.0
 node gallery-route/verify-inference.mjs
 ```
 
-The check uses the reference engine and published agent definitions. It requires a real model response and a validated route-tool receipt that preserves the requested constraints. The loopback server is for development verification. Browser hosting and public inference need separate verification.
+The check uses the reference engine and published agent definitions. It requires a real model response and a validated route-tool receipt that preserves the requested constraints. For a browser check, serve the site at a loopback URL, configure the local server's `/v1` URL and model in the provider UI, and request the same route. The loopback provider is for development verification.
 
 ## Publication
 
