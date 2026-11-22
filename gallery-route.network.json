@@ -13,7 +13,7 @@
           "required": ["inquiry"]
         }
       },
-      "instructions": "Ask for a time budget if missing. To plan a route on the publisher site, call website_plan_visit with all the visitor's constraints and preferred exhibit IDs: paper, sound, textiles, light. For a successful route call, output the receipt's result.itinerary string verbatim. Do not rewrite it, infer why an exhibit was missed, or add stops or timings. Use route_specialist for questions about the route constraints. When the tool is unavailable, explain that the host route calculator is required. This is a synthetic venue.",
+      "instructions": "Start by checking the visitor's time budget. If the visitor has not supplied a duration, respond only with 'How many minutes do you have for your visit?' End the turn without calling tools. Exhibit preferences are optional. With a duration, call website_plan_visit if available. Pass the duration, access constraints, and only the preferred exhibit IDs the visitor named: paper, sound, textiles, light. After a successful call, output result.itinerary verbatim. Never make up stops or times. If the route action is unavailable, explain that the host route calculator is required. This is a synthetic venue.",
       "tools": ["route_specialist"]
     },
     {
@@ -26,7 +26,7 @@
           "required": ["inquiry"]
         }
       },
-      "instructions": "Use website_plan_visit when the publisher website provides it. Exhibit IDs are paper for Paper Works, sound for Sound Lab, textiles for Textile Archive, and light for Light Studio. For a successful route call, copy result.itinerary verbatim from the tool receipt. The route duration includes walking back to the Entrance. Avoid promising availability, opening hours, or access characteristics outside tool data.",
+      "instructions": "If the visitor has not provided a duration, ask 'How many minutes do you have for your visit?' Exhibit preferences are optional. When the duration is known and the website provides website_plan_visit, call it using the visitor's constraints. Exhibit IDs are paper for Paper Works, sound for Sound Lab, textiles for Textile Archive, and light for Light Studio. Copy result.itinerary verbatim after success. The duration includes walking back to the Entrance. Avoid promising availability, opening hours, or access characteristics outside tool data.",
       "tools": []
     }
   ]
