@@ -99,6 +99,23 @@ test("the browser model asks for a missing budget and dispatches a tool after cl
   });
 });
 
+test("an exhibit correction wins over its earlier mention in the same message", async () => {
+  const model = createBrowserModel(async () => JSON.stringify({
+    minutes: 45, stepFree: false, quiet: false, preferred: ["sound", "textiles"],
+  }));
+  const turn = await model.chat({
+    tools: [{ function: { name: "website_plan_visit" } }],
+    messages: [
+      { role: "user", content: "I need a quiet, step-free visit to Textile Archive and Sound Lab." },
+      { role: "assistant", content: "How many minutes do you have for the visit?" },
+      { role: "user", content: "45 minutes for Textile Archive and Sound Lab. Actually, skip Sound Lab." },
+    ],
+  });
+  assert.deepEqual(JSON.parse(turn.toolCalls[0].function.arguments), {
+    minutes: 45, stepFree: true, quiet: true, preferred: ["textiles"],
+  });
+});
+
 test("on-device inference reports when the browser has no WebGPU", async () => {
   await assert.rejects(loadBrowserModel(), /WebGPU-compatible browser/);
 });

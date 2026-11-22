@@ -2,10 +2,10 @@ const webLLM = "https://cdn.jsdelivr.net/npm/@mlc-ai/web-llm@0.2.89/lib/index.js
 const toolName = "website_plan_visit";
 const exhibits = ["paper", "sound", "textiles", "light"];
 const exhibitNames = {
-  paper: /\bpaper works\b/i,
-  sound: /\bsound lab\b/i,
-  textiles: /\btextile archive\b/i,
-  light: /\blight studio\b/i,
+  paper: /\bpaper works\b/gi,
+  sound: /\bsound lab\b/gi,
+  textiles: /\btextile archive\b/gi,
+  light: /\blight studio\b/gi,
 };
 const requestSchema = {
   type: "object",
@@ -52,11 +52,11 @@ function explicitPreferences(requests, inferred) {
   const preferred = new Set(inferred);
   for (const text of requests) {
     for (const [id, name] of Object.entries(exhibitNames)) {
-      const mention = name.exec(text);
-      if (!mention) continue;
-      const before = text.slice(0, mention.index);
-      if (/\b(?:skip|avoid|exclude|drop)\s+(?:the\s+)?$/i.test(before)) preferred.delete(id);
-      else preferred.add(id);
+      for (const mention of text.matchAll(name)) {
+        const before = text.slice(0, mention.index);
+        if (/\b(?:skip|avoid|exclude|drop)\s+(?:the\s+)?$/i.test(before)) preferred.delete(id);
+        else preferred.add(id);
+      }
     }
   }
   return [...preferred];
