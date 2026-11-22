@@ -17,5 +17,10 @@
     "link_updates": {"mode": "browser-local"}
   },
   "deployment": {"mode": "static", "self_contained_runtime": true, "direct_byok": true},
-  "actions": {"version": 1, "module": "./gallery-actions.js", "agentTools": ["plan_visit"]}
+  "actions": {
+    "version": 1,
+    "module": "./gallery-actions.js",
+    "bridge": "./bridge/action-bridge.html",
+    "agentTools": ["plan_visit"]
+  }
 }

@@ -21,7 +21,7 @@ jobs:
           node --test route.test.mjs
           mkdir site
           cp index.html site.js style.css route.mjs gallery-actions.js agent-manifest.json gallery-route.network.json links.json LICENSE site/
-          cp -r runtime site/
+          cp -r runtime bridge site/
       - uses: actions/upload-pages-artifact@v4
         with:
           path: site

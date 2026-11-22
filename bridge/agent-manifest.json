@@ -1,0 +1,4 @@
+{
+  "networks": [{"name": "gallery_route"}],
+  "actions": {"version": 1, "module": "./bridge-actions.js"}
+}

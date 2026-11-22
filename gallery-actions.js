@@ -7,11 +7,13 @@ export function finalizeItinerary(answer, receipts) {
   return route?.receipt.result.itinerary ?? answer;
 }
 
-export function registerActions(actions) {
+export function registerActions(actions, { expose = false } = {}) {
   actions.register({
     name: "plan_visit",
     description: "Calculate and return an itinerary that returns to the Entrance.",
     effect: "read",
+    availability: expose ? "bridge" : "local-only",
+    callerOrigins: expose ? ["*"] : [],
     inputSchema: {
       type: "object",
       additionalProperties: false,
