@@ -4,6 +4,7 @@ import { test } from "node:test";
 import { AgentNetwork, validateNetwork } from "./runtime/kernel.js";
 import { Engine } from "./runtime/engine.js";
 import { finalizeItinerary, registerActions } from "./gallery-actions.js";
+import { createBrowserModel, loadBrowserModel } from "./browser-model.js";
 import { planRoute, venue } from "./route.mjs";
 
 test("quiet and step-free itinerary includes dwell time and return walk", () => {
@@ -70,4 +71,33 @@ test("the reference engine dispatches a model tool call and receives the itinera
   assert.match(reply, /Entrance → Paper Works → Textile Archive → Paper Works → Entrance/);
   assert.match(reply, /Outside this itinerary: Sound Lab/);
   assert.match(reply, /45 minutes/);
+});
+
+test("the browser model asks for a missing budget and dispatches a tool after clarification", async () => {
+  const tool = { function: { name: "website_plan_visit" } };
+  const initial = { role: "user", content: "I need a quiet step-free visit and want Textile Archive." };
+  let rounds = 0;
+  const model = createBrowserModel(async messages => {
+    const request = JSON.parse(messages[1].content);
+    assert.equal(request.messages[0], initial.content);
+    assert.equal(request.minutes, 45);
+    rounds++;
+    return JSON.stringify({
+      minutes: 30, stepFree: false, quiet: false, preferred: [],
+    });
+  });
+  const prompt = await model.chat({ messages: [initial], tools: [tool] });
+  assert.equal(prompt.content, "How many minutes do you have for the visit?");
+  assert.equal(rounds, 0);
+  const turn = await model.chat({
+    messages: [initial, { role: "assistant", content: prompt.content }, { role: "user", content: "45 minutes." }],
+    tools: [tool],
+  });
+  assert.deepEqual(JSON.parse(turn.toolCalls[0].function.arguments), {
+    minutes: 45, stepFree: true, quiet: true, preferred: ["textiles"],
+  });
+});
+
+test("on-device inference reports when the browser has no WebGPU", async () => {
+  await assert.rejects(loadBrowserModel(), /WebGPU-compatible browser/);
 });

@@ -1,4 +1,5 @@
-import { boot } from "./runtime/index.js";
+import { boot, Engine } from "./runtime/index.js";
+import { loadBrowserModel } from "./browser-model.js";
 import { planRoute, venue } from "./route.mjs";
 import { exhibits, finalizeItinerary } from "./gallery-actions.js";
 
@@ -47,14 +48,67 @@ planner.addEventListener("submit", event => {
     preferred: data.getAll("preferred"),
   }));
 });
-const status = document.querySelector("#agent-status");
 const base = new URL("./", import.meta.url);
-try {
-  const { engine } = await boot("#agent-app", {
-    originUrl: base.href, sandboxWorkerUrl: new URL("runtime/sandbox-worker.js", base).href,
-  });
-  engine.finalizeAnswer = finalizeItinerary;
-  status.textContent = "Configure a supported model in AI model settings to plan from chat.";
-} catch {
-  status.textContent = "The chat agent could not start. The itinerary form is available above.";
+const options = { originUrl: base.href, sandboxWorkerUrl: new URL("runtime/sandbox-worker.js", base).href };
+const localForm = document.querySelector("#device-chat");
+const request = localForm.querySelector("textarea");
+const ask = localForm.querySelector("button");
+const deviceStatus = document.querySelector("#device-status");
+const conversation = document.querySelector("#conversation");
+const device = new Engine(options);
+let deviceReady;
+
+function addMessage(label, text) {
+  const item = document.createElement("li");
+  const heading = document.createElement("strong");
+  heading.textContent = label;
+  item.append(heading, " ", text);
+  conversation.append(item);
 }
+
+localForm.addEventListener("submit", async event => {
+  event.preventDefault();
+  const question = request.value.trim();
+  if (!question || ask.disabled) return;
+  addMessage("You", question);
+  ask.disabled = request.disabled = true;
+  deviceStatus.textContent = "Preparing on-device inference…";
+  try {
+    deviceReady ??= Promise.all([
+      device.loadTop(),
+      loadBrowserModel(({ progress }) => {
+        deviceStatus.textContent = `Preparing model: ${Math.round(progress * 100)}%`;
+      }),
+    ]).then(([, llm]) => {
+      device.top.llm = llm;
+      device.finalizeAnswer = finalizeItinerary;
+    }).catch(error => {
+      deviceReady = undefined;
+      throw error;
+    });
+    await deviceReady;
+    deviceStatus.textContent = "Planning on this device…";
+    addMessage("Visit planner", await device.run(question));
+    deviceStatus.textContent = "Processed on this device.";
+    request.value = "";
+  } catch (error) {
+    deviceStatus.textContent = `On-device chat unavailable: ${error.message} The itinerary form above is ready to use.`;
+  } finally {
+    ask.disabled = request.disabled = false;
+  }
+});
+
+const provider = document.querySelector(".card details");
+provider.addEventListener("toggle", async () => {
+  if (!provider.open || provider.dataset.booted) return;
+  provider.dataset.booted = "true";
+  const status = document.querySelector("#agent-status");
+  try {
+    const { engine } = await boot("#agent-app", options);
+    engine.finalizeAnswer = finalizeItinerary;
+    status.textContent = "Configure a supported model in AI model settings.";
+  } catch {
+    delete provider.dataset.booted;
+    status.textContent = "The external provider interface could not start.";
+  }
+});

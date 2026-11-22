@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<title>Gallery Route public bridge verification</title>
+<h1>Gallery Route public bridge verification</h1>
+<p id="result" role="status">Connecting to Gallery Route from a different origin…</p>
+<script type="module">
+  const base = "https://leejinming.github.io/gallery-route";
+  const output = document.querySelector("#result");
+  try {
+    const [{ ActionRegistry }, { registerRemoteActions }, response] = await Promise.all([
+      import(`${base}/runtime/actions.js`),
+      import(`${base}/runtime/action-transport.js`),
+      fetch(`${base}/agent-manifest.json`),
+    ]);
+    if (!response.ok) throw new Error(`Manifest returned HTTP ${response.status}.`);
+    const manifest = await response.json();
+    const scope = { base, network: "gallery_route" };
+    const registry = new ActionRegistry();
+    await registerRemoteActions(registry, scope, manifest);
+    const entry = [...registry.entries.values()].find(action => action.name === "plan_visit");
+    if (entry?.effect !== "read") throw new Error("The read-only route action was not discovered.");
+    const plan = registry.prepare({ kind: "action", action: entry.ref, arguments: {
+      minutes: 45, stepFree: true, quiet: true, preferred: ["textiles", "sound"],
+    } });
+    const [receipt] = await registry.execute(plan, async () => true, crypto.randomUUID());
+    if (receipt.status !== "succeeded" || receipt.result.totalMinutes !== 45
+        || receipt.result.missedPreferred.join(",") !== "sound") throw new Error("Unexpected route receipt.");
+    output.textContent = `Cross-origin action passed. ${receipt.result.itinerary}`;
+  } catch (error) {
+    output.textContent = `Verification failed: ${error.message}`;
+  }
+</script>
+</html>

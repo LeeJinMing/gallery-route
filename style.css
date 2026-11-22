@@ -16,3 +16,8 @@ a { color: #155544; }
 #result:not(:empty) { margin-top: 1rem; background: #e7f2eb; padding: 1rem; border-radius: .5rem; }
 #result h3, #result p { margin: .35rem 0; }
 #agent-app { min-height: 8rem; margin-bottom: 1rem; }
+#device-chat { display: grid; gap: .55rem; justify-items: start; }
+#device-chat textarea { box-sizing: border-box; width: 100%; font: inherit; padding: .55rem; border: 1px solid #7c9b90; border-radius: .4rem; }
+#conversation { list-style: none; padding: 0; }
+#conversation li { padding: .7rem; background: #e7f2eb; border-radius: .4rem; margin-top: .5rem; }
+details { margin-bottom: .75rem; }

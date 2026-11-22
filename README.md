@@ -13,7 +13,9 @@ node --test gallery-route/route.test.mjs
 
 Open `http://127.0.0.1:5181/`. Set 45 minutes, choose Quiet and Step-free, and prefer Textile Archive and Sound Lab. The plan should visit Paper Works and Textile Archive in 45 minutes, returning to the Entrance. Sound Lab should be listed as outside the itinerary. With 10 minutes the form should report that no exhibit fits.
 
-The chat uses the browser runtime and calls the same route calculator through the read-only `website_plan_visit` tool. A supported, CORS-enabled inference provider is required for the current chat prototype. The manual form works without provider configuration. The museum and exhibit details are synthetic.
+**Ask on this device** uses the browser runtime and calls the same route calculator through the read-only `website_plan_visit` tool. On the first request, WebLLM loads a Qwen2.5 1.5B quantization into WebGPU. No API key is required. The model extracts the visitor's constraints into structured fields; the reference runtime validates and dispatches the route tool. The model receives those messages in the browser. Use the itinerary form if WebGPU or the model download is unavailable. The museum and exhibit details are synthetic.
+
+The optional provider interface supports a compatible CORS-enabled external inference endpoint. External requests follow the terms and privacy policies of the selected provider.
 
 ## Local model verification
 
@@ -32,4 +34,4 @@ Serve the directory over HTTPS. Apply CORS to the public agent manifest and netw
 
 The [reference deployment](https://leejinming.github.io/gallery-route/) publishes the [manifest](https://leejinming.github.io/gallery-route/agent-manifest.json) and [resolved network](https://leejinming.github.io/gallery-route/gallery-route.network.json) on GitHub Pages. Gallery Route makes no outgoing calls to partner agents. Other sites can discover the network at `https://leejinming.github.io/gallery-route/gallery_route` and reach the public read-only route calculator through the action bridge. That calculator uses only synthetic venue data.
 
-The browser runtime comes from Cognizant AI Lab's [agentic-web reference repository](https://github.com/cognizant-ai-labs/agentic-web/tree/e34299792cb85f6eb27fed896fdedf65880b458b/skills/agentify-website/runtime). Gallery Route adds a final-answer callback in the runtime so the chat presents the verified itinerary from the current turn's tool receipt. Its license ships in `runtime/LICENSE.txt` and the upstream repository license is in `UPSTREAM-LICENSE.txt`.
+The browser runtime comes from Cognizant AI Lab's [agentic-web reference repository](https://github.com/cognizant-ai-labs/agentic-web/tree/e34299792cb85f6eb27fed896fdedf65880b458b/skills/agentify-website/runtime). Gallery Route adds a final-answer callback in the runtime so the chat presents the verified itinerary from the current turn's tool receipt. Its license ships in `runtime/LICENSE.txt` and the upstream repository license is in `UPSTREAM-LICENSE.txt`. On-device inference uses [WebLLM](https://webllm.mlc.ai/) and MLC-format weights for [Qwen2.5-1.5B-Instruct](https://huggingface.co/Qwen/Qwen2.5-1.5B-Instruct).

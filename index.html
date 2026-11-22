@@ -30,8 +30,18 @@
     </section>
     <section class="card" aria-labelledby="assistant-title">
       <h2 id="assistant-title">Ask the visit planner</h2>
-      <p id="agent-status" role="status">Connecting the browser agent…</p>
-      <div id="agent-app"></div>
+      <form id="device-chat">
+        <label for="request">Describe your visit</label>
+        <textarea id="request" maxlength="500" rows="3" required placeholder="I have 45 minutes for a quiet, step-free visit. Can I see Textile Archive and Sound Lab?"></textarea>
+        <button class="plan" type="submit">Ask on this device</button>
+      </form>
+      <p id="device-status" role="status">Uses WebGPU. The first request downloads a model of about 1 GB. Your request stays in this browser.</p>
+      <ul id="conversation" aria-live="polite"></ul>
+      <details>
+        <summary>Use your own AI provider</summary>
+        <p id="agent-status" role="status"></p>
+        <div id="agent-app"></div>
+      </details>
       <a href="./agent-manifest.json">Agent manifest</a>
     </section>
   </main>
