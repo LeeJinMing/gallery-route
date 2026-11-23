@@ -76,8 +76,17 @@ localForm.addEventListener("submit", async event => {
   try {
     deviceReady ??= Promise.all([
       device.loadTop(),
-      loadBrowserModel(({ progress }) => {
-        deviceStatus.textContent = `Preparing model: ${Math.round(progress * 100)}%`;
+      loadBrowserModel(({ text = "", progress }) => {
+        const percent = Math.round(progress * 100);
+        if (text.startsWith("Fetching param cache")) {
+          deviceStatus.textContent = `Downloading model files: ${percent}%`;
+        } else if (text.startsWith("Loading model from cache")) {
+          deviceStatus.textContent = `Loading model files on this device: ${percent}%`;
+        } else if (text.startsWith("Loading GPU shader modules")) {
+          deviceStatus.textContent = `Preparing the GPU: ${percent}%`;
+        } else {
+          deviceStatus.textContent = "Preparing the on-device model…";
+        }
       }),
     ]).then(([, llm]) => {
       device.top.llm = llm;
