@@ -20,7 +20,7 @@ jobs:
         run: |
           node --test route.test.mjs
           mkdir site
-          cp index.html site.js style.css route.mjs gallery-actions.js browser-model.js agent-manifest.json gallery-route.network.json links.json LICENSE site/
+          cp index.html site.js style.css route.mjs gallery-actions.js browser-model.js agent-manifest.json gallery-route.network.json links.json LICENSE walkthrough.mp4 site/
           cp -r runtime bridge site/
           sed -i "s|\./site\.js\"|./site.js?v=${GITHUB_SHA}\"|; s|\./style\.css\"|./style.css?v=${GITHUB_SHA}\"|" site/index.html
           sed -i "s|\./browser-model\.js\"|./browser-model.js?v=${GITHUB_SHA}\"|" site/site.js

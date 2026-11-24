@@ -2,6 +2,8 @@
 
 Plan a round trip through a fictional design museum. The route calculation accounts for walking, time at each exhibit, and the return to the entrance. It respects quiet and step-free constraints and names requested exhibits that could not fit.
 
+The [71-second on-device demonstration](https://leejinming.github.io/gallery-route/walkthrough.mp4) shows the recorded browser session with entrant narration and English captions. The live site lets you run the same itinerary yourself.
+
 ## Local run
 
 From the parent workspace, run:
